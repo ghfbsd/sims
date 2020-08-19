@@ -518,7 +518,7 @@ char lmsg[80] = "";
 char msgbuf[512] = "";
 
 if (((!lp->notelnet) && (!lp->nomessage)) || (sim_switches & SWMASK ('V'))) {
-    sprintf (cmsg, "\n\r\nConnected to the %s simulator ", sim_name);
+    sprintf (cmsg, "\n" EOL "Connected to the %s simulator ", sim_name);
 
     if (mp->dptr) {                                     /* device defined? */
         sprintf (dmsg, "%s device",                     /* report device name */
@@ -528,7 +528,7 @@ if (((!lp->notelnet) && (!lp->nomessage)) || (sim_switches & SWMASK ('V'))) {
             sprintf (lmsg, ", line %d", (int)(lp-mp->ldsc));/* report the line number */
         }
 
-    sprintf (msgbuf, "%s%s%s\r\n\n", cmsg, dmsg, lmsg);
+    sprintf (msgbuf, "%s%s%s" EOL "\n", cmsg, dmsg, lmsg);
     }
 
 if (!mp->buffered) {
@@ -580,7 +580,7 @@ static void tmxr_report_disconnection (TMLN *lp)
 {
 if (lp->notelnet || lp->nomessage)
     return;
-tmxr_linemsgf (lp, "\r\nDisconnected from the %s simulator\r\n\n", sim_name);/* report disconnection */
+tmxr_linemsgf (lp, EOL "Disconnected from the %s simulator" EOL "\n", sim_name);/* report disconnection */
 }
 
 static int32 loop_write_ex (TMLN *lp, char *buf, int32 length, t_bool prefix_datagram)
@@ -1124,7 +1124,7 @@ if (mp->master) {
                                 tlp->modembits &= ~TMXR_MDM_RNG;
                             }
                         mp->ring_start_time = 0;
-                        tmxr_msg (newsock, "No answer on any connection\r\n");
+                        tmxr_msg (newsock, "No answer on any connection" EOL);
                         tmxr_debug_connect (mp, "tmxr_poll_conn() - No Answer - All connections busy");
                         sim_close_sock (newsock);
                         free (address);
@@ -1132,7 +1132,7 @@ if (mp->master) {
                     }
                 }
             else {
-                tmxr_msg (newsock, "All connections busy\r\n");
+                tmxr_msg (newsock, "All connections busy" EOL);
                 tmxr_debug_connect (mp, "tmxr_poll_conn() - All connections busy");
                 sim_close_sock (newsock);
                 free (address);
@@ -1237,7 +1237,7 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                             char host[sizeof(msg) - 64];
 
                             if (sim_parse_addr (lp->destination, host, sizeof(host), NULL, NULL, 0, NULL, address)) {
-                                tmxr_msg (newsock, "Rejecting connection from unexpected source\r\n");
+                                tmxr_msg (newsock, "Rejecting connection from unexpected source" EOL);
                                 snprintf (msg, sizeof (msg) -1, "tmxr_poll_conn() - Rejecting line connection from: %s, Expected: %s", address, host);
                                 tmxr_debug_connect_line (lp, msg);
                                 sim_close_sock (newsock);
@@ -1268,14 +1268,14 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
                                 return i;
                                 }
                             else {
-                                tmxr_msg (newsock, "Line connection not available\r\n");
+                                tmxr_msg (newsock, "Line connection not available" EOL);
                                 tmxr_debug_connect_line (lp, "tmxr_poll_conn() - Line connection not available");
                                 sim_close_sock (newsock);
                                 free (address);
                                 }
                             }
                         else {
-                            tmxr_msg (newsock, "Line connection busy\r\n");
+                            tmxr_msg (newsock, "Line connection busy" EOL);
                             tmxr_debug_connect_line (lp, "tmxr_poll_conn() - Line connection busy");
                             sim_close_sock (newsock);
                             free (address);
@@ -3543,7 +3543,7 @@ while (sim_asynch_enabled) {
             wait_count = 0;
             if (select_errno == EINTR)
                 break;
-            sim_printf ("select() returned -1, errno=%d - %s\r\n", select_errno, strerror(select_errno));
+            sim_printf ("select() returned -1, errno=%d - %s" EOL, select_errno, strerror(select_errno));
             abort();
             break;
         default:
@@ -3660,7 +3660,7 @@ while (sim_asynch_enabled) {
     pthread_mutex_lock (&sim_tmxr_poll_lock);
     switch (status) {
         case WAIT_FAILED:
-            sim_printf ("WaitForMultipleObjects() Failed, LastError=%d\r\n", GetLastError());
+            sim_printf ("WaitForMultipleObjects() Failed, LastError=%d" EOL, GetLastError());
             abort();
             break;
         case WAIT_TIMEOUT:
@@ -3771,7 +3771,7 @@ while (sim_asynch_enabled) {
                        IO$_READLBLK | IO$M_NOECHO | IO$M_NOFILTR | IO$M_TIMED | IO$M_TRMNOECHO,
                        &iosb, 0, 0, buf, 1, 1, term, 0, 0);
     if (status != SS$_NORMAL) {
-        sim_printf ("_tmxr_serial_line_poll() - QIO Failed, Status=%d\r\n", status);
+        sim_printf ("_tmxr_serial_line_poll() - QIO Failed, Status=%d" EOL, status);
         abort();
         }
     wait_count = 0;
@@ -5047,7 +5047,7 @@ if (lp == NULL)                                                 /* bad line numb
 
 if ((lp->sock) || (lp->serport)) {                              /* connection active? */
     if ((!lp->notelnet) && (!lp->nomessage))
-        tmxr_linemsg (lp, "\r\nOperator disconnected line\r\n\n");/* report closure */
+        tmxr_linemsg (lp, EOL "Operator disconnected line" EOL "\n");/* report closure */
     if (lp->serport && (sim_switches & SWMASK ('C'))) {
         sim_messagef (SCPE_OK, "If you really feel the need to disconnect this serial port, unplug the cable\n");
         sim_messagef (SCPE_OK, "from the serial port on your system.  Alternatively, you should restart the\n");

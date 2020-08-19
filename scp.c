@@ -3688,7 +3688,7 @@ if ((*cptr == '"') || (*cptr == '\'')) {
     cptr = (char *)dbuf;
     }
 if (lp) {
-    tmxr_linemsgf (lp, "%s%s", cptr, (sim_switches & SWMASK('N')) ? "" : "\r\n");
+    tmxr_linemsgf (lp, "%s%s", cptr, (sim_switches & SWMASK('N')) ? "" : EOL);
     tmxr_send_buffered_data (lp);
     }
 else
@@ -13033,7 +13033,7 @@ while ((eol = strchr (debug_line_buf, '\n')) || flush) {
         if (debug_line_count > 1) {
             char countstr[40];
 
-            sprintf (countstr, "same as above (%d time%s)\r\n", (int)(debug_line_count - 1), ((debug_line_count - 1) != 1) ? "s" : "");
+            sprintf (countstr, "same as above (%d time%s)" EOL, (int)(debug_line_count - 1), ((debug_line_count - 1) != 1) ? "s" : "");
             _debug_fwrite (debug_line_last_prefix, strlen (debug_line_last_prefix));
             _debug_fwrite (countstr, strlen (countstr));
             }
@@ -13066,7 +13066,7 @@ while ((eol = strchr (debug_line_buf, '\n')) || flush) {
                 if (debug_line_count > 1) {
                     char countstr[40];
 
-                    sprintf (countstr, "same as above (%d time%s)\r\n", (int)(debug_line_count - 1), ((debug_line_count - 1) != 1) ? "s" : "");
+                    sprintf (countstr, "same as above (%d time%s)" EOL, (int)(debug_line_count - 1), ((debug_line_count - 1) != 1) ? "s" : "");
                     _debug_fwrite (debug_line_last_prefix, strlen (debug_line_last_prefix));
                     _debug_fwrite (countstr, strlen (countstr));
                     }
@@ -13251,7 +13251,7 @@ if (sim_deb && dptr && (dptr->dctrl & dbits)) {
         fprintf(sim_deb, "%s: ", header);
     fprint_fields (sim_deb, (t_value)before, (t_value)after, bitdefs);  /* print xlation, transition */
     if (terminate)
-        fprintf(sim_deb, "\r\n");
+        fprintf(sim_deb, EOL);
     debug_unterm = terminate ? 0 : 1;                                   /* set unterm for next */
     sim_oline = saved_oline;                                            /* restore original socket */
     }
@@ -13302,7 +13302,7 @@ if (sim_is_running) {
 
     while ((c = strchr (remnant, '\n'))) {
         if ((c != buf) && (*(c - 1) != '\r'))
-            fprintf (stdout, "%.*s\r\n", (int)(c-remnant), remnant);
+            fprintf (stdout, "%.*s" EOL, (int)(c-remnant), remnant);
         else
             fprintf (stdout, "%.*s\n", (int)(c-remnant), remnant);
         remnant = c + 1;
@@ -13386,7 +13386,7 @@ if (sim_is_running && !inhibit_message) {
 
     while ((c = strchr(remnant, '\n'))) {
         if ((c != buf) && (*(c - 1) != '\r'))
-            fprintf (stdout, "%.*s\r\n", (int)(c-remnant), remnant);
+            fprintf (stdout, "%.*s" EOL, (int)(c-remnant), remnant);
         else
             fprintf (stdout, "%.*s\n", (int)(c-remnant), remnant);
         remnant = c + 1;
@@ -13467,7 +13467,7 @@ if (sim_deb && dptr && ((dptr->dctrl | (uptr ? uptr->dctrl : 0)) & dbits)) {
                     if (!debug_unterm)                  /* print prefix when required */
                         _sim_debug_write (debug_prefix, strlen (debug_prefix));
                     _sim_debug_write (&buf[j], i-j);
-                    _sim_debug_write ("\r\n", 2);
+                    _sim_debug_write (EOL, EOL_LEN);
                     }
                 debug_unterm = 0;
                 }
@@ -13475,9 +13475,9 @@ if (sim_deb && dptr && ((dptr->dctrl | (uptr ? uptr->dctrl : 0)) & dbits)) {
             }
         else {
             if (buf[i] == 0) {      /* Imbedded \0 character in formatted result? */
-                fprintf (stderr, "sim_debug() formatted result: '%s'\r\n"
-                                 "            has an imbedded \\0 character.\r\n"
-                                 "DON'T DO THAT!\r\n", buf);
+                fprintf (stderr, "sim_debug() formatted result: '%s'" EOL
+                                 "            has an imbedded \\0 character." EOL
+                                 "DON'T DO THAT!" EOL, buf);
                 abort();
                 }
             }

@@ -540,7 +540,7 @@ return filesystem_size;
 t_stat sim_disk_set_async (UNIT *uptr, int latency)
 {
 #if !defined(SIM_ASYNCH_IO)
-char *msg = "Disk: can't operate asynchronously\r\n";
+char *msg = "Disk: can't operate asynchronously" EOL;
 sim_printf ("%s", msg);
 return SCPE_NOFNC;
 #else

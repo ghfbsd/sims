@@ -23,6 +23,7 @@
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
 
+   18-Aug-20    GRH     Eliminate \r\n in debug messages when \r not needed
    25-Sep-16    RMS     Removed KBD_WAIT and friends
    08-Mar-16    RMS     Added shutdown invisible switch
    24-Dec-14    JDB     Added T_ADDR_FMT
@@ -176,6 +177,15 @@ extern "C" {
 #ifndef TRUE
 #define TRUE            1
 #define FALSE           0
+#endif
+
+/* system-specific EOL char(s) */
+#if defined (__unix__) || defined (__APPLE__) || defined (__hpux) /* UNIX definitions */
+#define EOL "\n"
+#define EOL_LEN 1
+#else
+#define EOL "\r\n"
+#define EOL_LEN 2
 #endif
 
 /* SCP API shim.

@@ -455,7 +455,7 @@ static void load_function(const char* function, _func* func_ptr) {
     *func_ptr = (_func)dlsym(hLib, function);
 #endif
     if (*func_ptr == 0) {
-    sim_printf ("Sockets: Failed to find function '%s' in %s\r\n", function, lib_name);
+    sim_printf ("Sockets: Failed to find function '%s' in %s" EOL, function, lib_name);
     lib_loaded = 3;
   }
 }
@@ -472,7 +472,7 @@ int load_ws2(void) {
 #endif
       if (hLib == 0) {
         /* failed to load DLL */
-        sim_printf ("Sockets: Failed to load %s\r\n", lib_name);
+        sim_printf ("Sockets: Failed to load %s" EOL, lib_name);
         lib_loaded = 2;
         break;
       } else {

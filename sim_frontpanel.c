@@ -1240,7 +1240,7 @@ if (_panel_sendf (panel, &cmd_stat, &response, "EXAMINE -H %s %s%s\r", device_na
     return -1;
     }
 c = strchr (response, ':');
-if ((!strcmp ("Invalid argument\r\n", response)) || (!c)) {
+if ((!strcmp ("Invalid argument" EOL, response)) || (!c)) {
     sim_panel_set_error (NULL, "Invalid Register: %s %s", device_name? device_name : "", name);
     free (response);
     free (reg->name);
@@ -1257,7 +1257,7 @@ if (element_count > 0) {
         free (regs);
         return -1;
         }
-    if (!strcmp ("Subscript out of range\r\n", response)) {
+    if (!strcmp ("Subscript out of range" EOL, response)) {
         sim_panel_set_error (NULL, "Invalid Register Array Dimension: %s %s[%d]", device_name? device_name : "", name, element_count-1);
         free (response);
         free (reg->name);
@@ -2357,7 +2357,7 @@ while ((p->sock != INVALID_SOCKET) &&
         _panel_debug (p, DBG_RCV, "Receive Data Accumulated: '%s'", NULL, 0, s);
         strcpy (p->io_response + p->io_response_data, s);
         p->io_response_data += strlen(s);
-        strcpy (p->io_response + p->io_response_data, "\r\n");
+        strcpy (p->io_response + p->io_response_data, EOL);
         p->io_response_data += 2;
         if ((!p->parent) && 
             (p->completion_string) && 

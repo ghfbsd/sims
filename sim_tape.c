@@ -547,7 +547,7 @@ static int tape_classify_file_contents (FILE *f, size_t *max_record_size, t_bool
 t_stat sim_tape_set_async (UNIT *uptr, int latency)
 {
 #if !defined(SIM_ASYNCH_IO)
-return sim_messagef (SCPE_NOFNC, "Tape: can't operate asynchronously\r\n");
+return sim_messagef (SCPE_NOFNC, "Tape: can't operate asynchronously" EOL);
 #else
 struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
 pthread_attr_t attr;
@@ -4354,7 +4354,7 @@ static void ansi_fill_text_buffer (FILE *f, char *buf, size_t buf_size, size_t r
 
             if ((tmp[rec_size - 2] != '\r') &&
                 (tmp[rec_size - 1] == '\n')) {
-                memcpy (&tmp[rec_size - 1], "\r\n", 3);
+                memcpy (&tmp[rec_size - 1], EOL, 1+EOL_LEN);
                 rec_size += 1;
                 }
             if (offset + rec_size < buf_size)
