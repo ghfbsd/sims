@@ -249,7 +249,7 @@ cdr_srv(UNIT *uptr) {
            return SCPE_OK;
        } else {
            uptr->COL++;
-           sim_debug(DEBUG_DATA, &cdr_dev, "%d: Char > %02o\n", u, ch);
+           sim_debug(DEBUG_DATA, &cdr_dev, "%d: Char > %02x\n", u, ch);
         }
         if (uptr->COL == 80) {
             uptr->CMD &= ~(CDR_CMDMSK);
