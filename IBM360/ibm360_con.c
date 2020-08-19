@@ -187,6 +187,7 @@ uint8  con_startcmd(UNIT *uptr, uint16 chan,  uint8 cmd) {
          return 0;
 
     default:              /* invalid command */
+         sim_debug(DEBUG_CMD, &con_dev, "%d: Cmd %02.2x <invalid>\n", u, cmd);
          uptr->SNS |= SNS_CMDREJ;
          break;
     }
@@ -245,6 +246,7 @@ con_srv(UNIT *uptr) {
          chan_write_byte(addr, &ch);
          chan_end(addr, SNS_CHNEND|SNS_DEVEND);
          uptr->CMD &= ~(CON_MSK);
+         uptr->SNS &= ~(SNS_CMDREJ+SNS_INTVENT); /* clear errors after sense */
          break;
 
     case CON_WR:
