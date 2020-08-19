@@ -230,15 +230,12 @@ cdp_srv(UNIT *uptr) {
 t_stat
 cdp_attach(UNIT * uptr, CONST char *file)
 {
-    t_stat              r;
 
-    if ((r = sim_card_attach(uptr, file)) != SCPE_OK)
-       return r;
     if (uptr->up7 == 0) {
         uptr->up7 = calloc(80, sizeof(uint16));
         uptr->SNS = 0;
     }
-    return SCPE_OK;
+    return sim_card_attach(uptr, file);
 }
 
 t_stat
