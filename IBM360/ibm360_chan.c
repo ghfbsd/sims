@@ -385,6 +385,7 @@ loop:
              chan_status[chan] |= STATUS_CEND;
              ccw_cmd[chan] = 0;
              irq_pend = 1;
+             return 1;
         }
     }
     if (ccw_flags[chan] & FLAG_PCI) {

@@ -293,6 +293,7 @@ print_line(UNIT * uptr)
 
 uint8 lpr_startcmd(UNIT * uptr, uint16 chan, uint8 cmd)
 {
+    uint8 byt;
     if ((uptr->CMD & LPR_CMDMSK) != 0) {
        if ((uptr->flags & UNIT_ATT) != 0)
             return SNS_BSY;
@@ -312,11 +313,10 @@ uint8 lpr_startcmd(UNIT * uptr, uint16 chan, uint8 cmd)
 
     case 3:              /* Carrage control */
          uptr->CMD &= ~(LPR_CMDMSK);
-         uptr->CMD |= (cmd & LPR_CMDMSK);
-         sim_activate(uptr, 10);          /* Start unit off */
          uptr->SNS = 0;
          uptr->POS = 0;
-         return 0;
+         (void)chan_read_byte(GET_UADDR(uptr->CMD), &byt); /* prevent incorr. length */
+         return SNS_CHNEND|SNS_DEVEND;    /* act like imm. op */
 
     case 0:               /* Status */
          if (cmd == 0x4) {           /* Sense */
