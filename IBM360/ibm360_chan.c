@@ -653,7 +653,7 @@ chan_end(uint16 addr, uint8 flags) {
         (void)(writebuff(chan));
         chan_byte[chan] = BUFF_EMPTY;
     }
-    chan_status[chan] |= STATUS_CEND;
+    if(flags) chan_status[chan] |= STATUS_CEND;
     chan_status[chan] |= ((uint16)flags) << 8;
     ccw_cmd[chan] = 0;
 

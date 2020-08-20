@@ -293,6 +293,7 @@ print_line(UNIT * uptr)
 
 uint8 lpr_startcmd(UNIT * uptr, uint16 chan, uint8 cmd)
 {
+    int                 u = (uptr - lpr_unit);
     uint8 byt;
     if ((uptr->CMD & LPR_CMDMSK) != 0) {
        if ((uptr->flags & UNIT_ATT) != 0)
@@ -401,7 +402,8 @@ lpr_srv(UNIT *uptr) {
            chan_end(addr, SNS_CHNEND|SNS_DEVEND|SNS_UNITEXP);
            uptr->SNS &= 0xff;
        } else {
-           chan_end(addr, SNS_CHNEND|SNS_DEVEND);
+           chan_end(addr, 0);      /* Clear channel status */
+           set_devattn(addr, 0); 
        }
        return SCPE_OK;
     }
@@ -425,6 +427,7 @@ lpr_srv(UNIT *uptr) {
 
 void
 lpr_ini(UNIT *uptr, t_bool f) {
+    int             u = (uptr - lpr_unit);
     uptr->CMD &= ~(LPR_FULL|LPR_CMDMSK);
     uptr->LINE = 0;
     uptr->SNS = 0;
@@ -438,6 +441,7 @@ lpr_attach(UNIT * uptr, CONST char *file)
     sim_switches |= SWMASK ('A');   /* Position to EOF */
     if ((r = attach_unit(uptr, file)) != SCPE_OK)
        return r;
+    uptr->flags |= UNIT_ATT;
     uptr->CMD &= ~(LPR_FULL|LPR_CMDMSK);
     uptr->LINE = 0;
     uptr->SNS = 0;
