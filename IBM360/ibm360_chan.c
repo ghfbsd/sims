@@ -653,7 +653,7 @@ chan_end(uint16 addr, uint8 flags) {
         (void)(writebuff(chan));
         chan_byte[chan] = BUFF_EMPTY;
     }
-    if(flags) chan_status[chan] |= STATUS_CEND;
+    chan_status[chan] |= STATUS_CEND;
     chan_status[chan] |= ((uint16)flags) << 8;
     ccw_cmd[chan] = 0;
 
@@ -670,8 +670,10 @@ chan_end(uint16 addr, uint8 flags) {
     if (flags & (SNS_ATTN|SNS_UNITCHK|SNS_UNITEXP))
         ccw_flags[chan] = 0;
 
-    if ((flags & SNS_DEVEND) != 0)
+    if ((flags & SNS_DEVEND) != 0) {
         ccw_flags[chan] &= ~(FLAG_CD|FLAG_SLI);
+        if (!chan_dev[chan]) chan_status[chan] = 0; /* DE with no device clears chan_status */
+    }
 
     irq_pend = 1;
     sim_debug(DEBUG_DETAIL, &cpu_dev, "chan_end(%x, %x) %x %04x end\n", addr, flags,
@@ -773,7 +775,7 @@ startio(uint16 addr) {
 
     /* Try to load first command */
     if (load_ccw(chan, 0)) {
-        M[0x44 >> 2] = ((uint32)chan_status[chan]<<16) | (M[0x44 >> 2] & 0xffff);
+        M[0x44 >> 2] = ((uint32)chan_status[chan]<<16) | (ccw_count[chan] & 0xffff);
         key[0] |= 0x6;
         sim_debug(DEBUG_CMD, &cpu_dev, "SIO %x %x %x %x cc=2\n", addr, chan,
               ccw_cmd[chan], ccw_flags[chan]);
