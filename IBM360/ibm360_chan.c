@@ -777,6 +777,8 @@ startio(uint16 addr) {
         key[0] |= 0x6;
         sim_debug(DEBUG_CMD, &cpu_dev, "SIO %x %x %x %x cc=2\n", addr, chan,
               ccw_cmd[chan], ccw_flags[chan]);
+        sim_debug(DEBUG_EXP, &cpu_dev, "Channel store csw  %02x %08x\n",
+              chan, M[0x44 >> 2]);
         chan_status[chan] = 0;
         dev_status[addr] = 0;
         ccw_cmd[chan] = 0;
