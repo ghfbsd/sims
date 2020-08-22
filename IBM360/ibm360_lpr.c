@@ -293,7 +293,6 @@ print_line(UNIT * uptr)
 
 uint8 lpr_startcmd(UNIT * uptr, uint16 chan, uint8 cmd)
 {
-    int                 u = (uptr - lpr_unit);
     uint8 byt;
     if ((uptr->CMD & LPR_CMDMSK) != 0) {
        if ((uptr->flags & UNIT_ATT) != 0)
@@ -402,8 +401,7 @@ lpr_srv(UNIT *uptr) {
            chan_end(addr, SNS_CHNEND|SNS_DEVEND|SNS_UNITEXP);
            uptr->SNS &= 0xff;
        } else {
-           chan_end(addr, 0);      /* Clear channel status */
-           set_devattn(addr, 0); 
+           chan_end(addr, SNS_DEVEND); /* Clear chan status */
        }
        return SCPE_OK;
     }
@@ -418,7 +416,11 @@ lpr_srv(UNIT *uptr) {
        }
        if (uptr->CMD & LPR_FULL || uptr->POS > 132) {
            uptr->CMD |= LPR_FULL;
-           chan_end(addr, SNS_CHNEND);
+           /* Not really done, but if a is SIO done on device before
+              we finish output with print_line(), SNS_BSY will
+              be returned (see routine entry) and SIO will store
+              a CSW with device busy (0x10) showing. */
+           chan_end(addr, SNS_CHNEND); 
            sim_activate(uptr, 5000);
        }
     }
