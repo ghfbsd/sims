@@ -975,17 +975,26 @@ int haltio(uint16 addr) {
 int testchan(uint16 channel) {
     uint16         st = 0;
     channel >>= 8;
-    if (channel == 0 || channel == 4)
+    if (channel == 0 || channel == 4) {
+        sim_debug(DEBUG_CMD, &cpu_dev, "TCH %x cc=0\n", channel);
         return 0;
-    if (channel > channels)
+    }
+    if (channel > channels) {
+        sim_debug(DEBUG_CMD, &cpu_dev, "TCH %x cc=3\n", channel);
         return 3;
+    }
     st = chan_status[SEL_BASE + channel];
-    if (st & STATUS_BUSY)
+    if (st & STATUS_BUSY) {
+        sim_debug(DEBUG_CMD, &cpu_dev, "TCH %x %x cc=2\n", channel, st);
         return 2;
+    }
     if (st & (STATUS_ATTN|STATUS_PCI|STATUS_EXPT|STATUS_CHECK|
                   STATUS_PROT|STATUS_CDATA|STATUS_CCNTL|STATUS_INTER|
-                  STATUS_CHAIN))
+                  STATUS_CHAIN)) {
+        sim_debug(DEBUG_CMD, &cpu_dev, "TCH %x %x cc=1\n", channel, st);
         return 1;
+    }
+    sim_debug(DEBUG_CMD, &cpu_dev, "TCH %x %x cc=0\n", channel, st);
     return 0;
 }
 
