@@ -363,7 +363,7 @@ MTAB cpu_mod[] = {
     { FEAT_DAT, FEAT_DAT, "DAT", "DAT", NULL, NULL, NULL, "DAT /67"},
     { FEAT_DAT, 0, NULL,  "NODAT", NULL, NULL},
     { EXT_IRQ, 0, "NOEXT",  NULL, NULL, NULL},
-    { EXT_IRQ, EXT_IRQ, "EXT", "EXT", NULL, NULL, NULL, "External Irq"},
+    { EXT_IRQ, EXT_IRQ, "EXT", "EXT", NULL, NULL, NULL, "SET CPU EXT causes external interrupt"},
     { MTAB_XTD|MTAB_VDV|MTAB_NMO|MTAB_SHP, 0, "HISTORY", "HISTORY",
       &cpu_set_hist, &cpu_show_hist },
     { 0 }
