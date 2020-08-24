@@ -1613,7 +1613,7 @@ opr:
                 if (flags & PROBLEM)
                     storepsw(OPPSW, IRC_PRIV);
                 else
-                    cc = testio(addr1 & 0xfff);
+                    cc = testio(addr1 & 0x1fff); /* /67 feature */
                 break;
 
         case OP_HIO:
@@ -1627,7 +1627,7 @@ opr:
                 if (flags & PROBLEM)
                     storepsw(OPPSW, IRC_PRIV);
                 else
-                    cc = testchan(addr1 & 0xfff);
+                    cc = testchan(addr1 & 0x1fff); /* /67 feature */
                 break;
 
         case OP_DIAG:

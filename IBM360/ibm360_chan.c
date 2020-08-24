@@ -974,27 +974,53 @@ int haltio(uint16 addr) {
  */
 int testchan(uint16 channel) {
     uint16         st = 0;
-    channel >>= 8;
-    if (channel == 0 || channel == 4) {
-        sim_debug(DEBUG_CMD, &cpu_dev, "TCH %x cc=0\n", channel);
-        return 0;
-    }
-    if (channel > channels) {
-        sim_debug(DEBUG_CMD, &cpu_dev, "TCH %x cc=3\n", channel);
+    uint8          Cc = 0;
+
+    /* 360 Principles of Operation says, "Bit positions 21-23 of the
+    sum formed by the addition of the content of register B1 and the
+    content of the D1 field identify the channel to which the
+    instruction applies. Bit positions 24-31 of the address are ignored.” 
+
+    /67 Functional Characteristics do not mention any changes in basic or
+    extended control mode of the TCH instruction behaviour.
+
+    However, historic /67 code for MTS suggests that bits 19-20 of the
+    address indicate the channel controller which should be used to query
+    the channel.
+    
+    Original testchan code did not recognize the channel controller (CC) part
+    of the address and treats the query as referring to a channel # like so:
+    CC = 0 channel# 0  1  2  3  4  5  6 
+    CC = 1    "     8  9 10 11 12 13 14
+    CC = 2    "    16 17 18 19 20 21 22
+    CC = 3    "    24 25 26 27 28 29 30
+    which may interfere with subchannel mapping.
+    
+    For the nonce, TCH only indicates that channels connected to CC 0 are
+    attached. */
+
+    Cc = (channel >> 11) & 0x03;
+    channel = (channel >> 8) & 0x07;
+    if (Cc > 0 || channel > channels) {
+        sim_debug(DEBUG_CMD, &cpu_dev, "TCH CC %x %x cc=3\n", Cc, channel);
         return 3;
+    }
+    if (channel == 0 || channel == 4) {
+        sim_debug(DEBUG_CMD, &cpu_dev, "TCH CC %x %x cc=0\n", Cc, channel);
+        return 0;
     }
     st = chan_status[SEL_BASE + channel];
     if (st & STATUS_BUSY) {
-        sim_debug(DEBUG_CMD, &cpu_dev, "TCH %x %x cc=2\n", channel, st);
+        sim_debug(DEBUG_CMD, &cpu_dev, "TCH CC %x %x %x cc=2\n", Cc, channel, st);
         return 2;
     }
     if (st & (STATUS_ATTN|STATUS_PCI|STATUS_EXPT|STATUS_CHECK|
                   STATUS_PROT|STATUS_CDATA|STATUS_CCNTL|STATUS_INTER|
                   STATUS_CHAIN)) {
-        sim_debug(DEBUG_CMD, &cpu_dev, "TCH %x %x cc=1\n", channel, st);
+        sim_debug(DEBUG_CMD, &cpu_dev, "TCH CC %x %x %x cc=1\n", Cc, channel, st);
         return 1;
     }
-    sim_debug(DEBUG_CMD, &cpu_dev, "TCH %x %x cc=0\n", channel, st);
+    sim_debug(DEBUG_CMD, &cpu_dev, "TCH CC %x %x %x cc=0\n", Cc, channel, st);
     return 0;
 }
 
