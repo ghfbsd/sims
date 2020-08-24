@@ -474,7 +474,7 @@ void storepsw(uint32 addr, uint16 ircode) {
          hst[hst_p].src2 = word2;
          hst[hst_p].addr1 = ircode;
      }
-     sim_debug(DEBUG_INST, &cpu_dev, "store %02x %d %x %03x PSW=%08x %08x\n\r", addr, ilc,
+     sim_debug(DEBUG_INST, &cpu_dev, "store %02x %d %x %03x PSW=%08x %08x\n", addr, ilc,
              cc, ircode, word, word2);
      irqcode = ircode;
 }
@@ -2267,7 +2267,7 @@ save_dbl:
                             goto supress;
                         cregs[reg1] = dest;
                         sim_debug(DEBUG_INST, &cpu_dev,
-                                 "Loading: CR %x %06x %08x IC=%08x %x\n\r",
+                                 "Loading: CR %x %06x %08x IC=%08x %x\n",
                                     reg1, addr1, dest, PC, reg);
                         switch (reg1) {
                         case 0x0:     /* Segment table address */
@@ -3275,7 +3275,7 @@ save_dbl:
                             goto supress;
                         cregs[reg1] = dest;
                         sim_debug(DEBUG_INST, &cpu_dev,
-                                 "Loading: CR %x %06x %08x IC=%08x %x\n\r",
+                                 "Loading: CR %x %06x %08x IC=%08x %x\n",
                                     reg1, addr1, dest, PC, reg);
                         switch (reg1) {
                         case 0x0:     /* General control register */
@@ -5964,7 +5964,7 @@ for (i = 0; i < clim; i++)
     nM[i] = M[i];
 free (M);
 M = nM;
-fprintf(stderr, "Mem size=%x\n\r", val);
+fprintf(stderr, "Mem size=%x\n", val);
 MEMSIZE = val;
 reset_all (0);
 return SCPE_OK;
