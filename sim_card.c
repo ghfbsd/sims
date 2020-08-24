@@ -1380,7 +1380,8 @@ t_stat sim_card_attach_help(FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, cons
         fprintf (st, "  sim> ATTACH {switches} %s carddeck\n\n", sim_uname (uptr));
     fprintf (st, "Attach command switches\n");
     fprintf (st, "    -F          Open the indicated card deck in a specific format (default\n");
-    fprintf (st, "                is AUTO, alternatives are BIN, TEXT, BCD and CBN)\n");
+    fprintf (st, "                is AUTO, alternatives are BIN, TEXT, BCD, CBN, EBCDIC and\n");
+    fprintf (st, "                OCTAL)\n");
     if (punches != 0) {
         fprintf (st, "    -N          Create a new punch output file (default is to append to\n");
         fprintf (st, "                an existing file if it exists)\n");
