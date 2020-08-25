@@ -5419,7 +5419,9 @@ lpsw:
              else
                 flags = (src1 >> 16) & 0xf;
              PC = src2 & AMASK;
-             sim_debug(DEBUG_INST, &cpu_dev, "PSW=%08x %08x  ", src1, src2);
+//           Seems redundant - most gotos to supress: just stored a PSW and
+//           this repeats the same debug info on the same line.
+//           sim_debug(DEBUG_INST, &cpu_dev, "PSW=%08x %08x  ", src1, src2);
              if (dat_en & 0x2)
                  storepsw(OPPSW, IRC_SPEC);
         }
