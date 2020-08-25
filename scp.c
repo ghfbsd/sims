@@ -7143,22 +7143,28 @@ t_stat reset_cmd (int32 flag, CONST char *cptr)
 {
 char gbuf[CBUFSIZE];
 DEVICE *dptr;
+t_stat res;
 
 run_cmd_did_reset = FALSE;
 GET_SWITCHES (cptr);                                    /* get switches */
 if (*cptr == 0)                                         /* reset(cr) */
     return (reset_all (0));
 cptr = get_glyph (cptr, gbuf, 0);                       /* get next glyph */
-if (*cptr != 0)                                         /* now eol? */
-    return SCPE_2MARG;
 if (strcmp (gbuf, "ALL") == 0)
     return (reset_all (0));
 dptr = find_dev (gbuf);                                 /* locate device */
 if (dptr == NULL)                                       /* found it? */
     return SCPE_NXDEV;
-if (dptr->reset != NULL)
-    return dptr->reset (dptr);
-else return SCPE_OK;
+if (strcmp (dptr->name, "CPU") == 0) {
+    /* Following is a kludge to pass additional pars to cpu reset */
+    dptr->ctxt = (void *) cptr;
+    res = dptr->reset (dptr);
+    dptr->ctxt = NULL;
+} else if (cptr)                                        /* check eol */
+    res = SCPE_2FARG;
+else
+    res = dptr->reset (dptr);
+return res;
 }
 
 t_stat runlimit_cmd (int32 flag, CONST char *cptr)
