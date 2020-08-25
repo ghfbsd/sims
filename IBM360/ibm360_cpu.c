@@ -402,6 +402,7 @@ void storepsw(uint32 addr, uint16 ircode) {
                      (((uint32)pmsk) << 8);
              /* Save code where 360/67 expects it to be */
              switch(addr) {
+             case ORPSW:
              case OEPSW:
                    M[0xc >> 2] = (M[0xc >> 2] & 0xffff0000) | ircode;
                    break;
@@ -1149,6 +1150,15 @@ wait_loop:
 
         /* Check for external interrupts */
         if (ext_en) {
+            /* Console panel PSW RESTART key? */
+            if ((cpu_unit[0].flags & PSW_IRQ) != 0) {
+                ilc = 0;
+                cpu_unit[0].flags &= ~PSW_IRQ;
+                storepsw(ORPSW, 0x40);
+                irqaddr = 0;
+                goto supress;
+            }
+
             if ((cpu_unit[0].flags & EXT_IRQ) != 0) {
                 if (!ec_mode ||
                     ((cpu_unit[0].flags & FEAT_370) != 0 && ((cregs[0] & 0x20) != 0)) ||
@@ -5797,6 +5807,19 @@ dec_div(int op, uint32 addr1, uint8 len1, uint32 addr2, uint8 len2)
 t_stat cpu_reset (DEVICE *dptr)
 {
     int     i;
+    char    *opts = (char *)dptr->ctxt;
+
+    if (opts && *opts) {
+        t_stat res = SCPE_OK;
+        if(strcasecmp (opts, "PSW") == 0) {
+            /* PSW restart */
+            cpu_unit[0].flags |= PSW_IRQ;
+            sim_debug(DEBUG_EXP, &cpu_dev, "PSW RESTART interrupt\n");
+        } else
+            res = SCPE_ARG;
+        return res;
+    }
+    dptr->ctxt = NULL;
 
     /* Create memory array if it does not exist. */
     if (M == NULL) {                        /* first time init? */
@@ -6060,6 +6083,8 @@ t_stat              cpu_help(FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, con
     fprintf(st, "IBM360 CPU\n\n");
     fprint_set_help(st, dptr);
     fprint_show_help(st, dptr);
+    fprintf(st, "\nCPU device RESET commands:\n\n");
+    fprintf(st, "reset CPU PSW                   PSW RESTART system control panel key\n");
     return SCPE_OK;
 }
 
