@@ -47,7 +47,7 @@
         384 - +6    0x1xx - 0x6xx
 
         Channels 1,2,3,5,6 are selector channels.
-        Devices on channel 0 below number of subchannels have there own
+        Devices on channel 0 below number of subchannels have their own
         virtual channel.
         Devices on channel 0 above the number of subchannels are mapped in
         groups of 16 into channels 0 to n.
@@ -107,11 +107,14 @@ typedef struct dib {
 #define FEAT_EFP     (1 << (UNIT_V_UF + 6))     /* Extended floating point */
 #define FEAT_370     (1 << (UNIT_V_UF + 7))     /* Is a 370 */
 #define EXT_IRQ      (1 << (UNIT_V_UF + 8))     /* External interrupt */
+#define PSW_IRQ      (1 << (UNIT_V_UF + 9))     /* PSW reset */
 
 /* low addresses */
 #define IPSW              0x00        /* IPSW */
 #define ICCW1             0x08        /* ICCW1 */
 #define ICCW2             0x10        /* ICCW2 */
+#define NRPSW             0x00        /* New restart PSW */
+#define ORPSW             0x08        /* Old restart PSW */
 #define OEPSW             0x18        /* Exteranl old PSW */
 #define OSPSW             0x20        /* Supervisior call old PSW */
 #define OPPSW             0x28        /* Program old PSW */
