@@ -996,16 +996,17 @@ int testchan(uint16 channel) {
     CC = 3    "    24 25 26 27 28 29 30
     which may interfere with subchannel mapping.
     
-    For the nonce, TCH only indicates that channels connected to CC 0 are
-    attached. */
+    For the nonce, TCH only indicates that channels connected to CC 0 & 1 are
+    attached.  Channels 0, 4, 8 (0 on CC 1) & 12 (4 on CC 1) are multiplexer
+    channels. */
 
     Cc = (channel >> 11) & 0x03;
-    channel = (channel >> 8) & 0x07;
-    if (Cc > 0 || channel > channels) {
+    channel = (channel >> 8) & 0x0f;
+    if (Cc > 1 || channel > channels) {
         sim_debug(DEBUG_CMD, &cpu_dev, "TCH CC %x %x cc=3\n", Cc, channel);
         return 3;
     }
-    if (channel == 0 || channel == 4) {
+    if (channel == 0 || channel == 4 || channel == 8 || channel == 12) {
         sim_debug(DEBUG_CMD, &cpu_dev, "TCH CC %x %x cc=0\n", Cc, channel);
         return 0;
     }

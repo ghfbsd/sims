@@ -1616,7 +1616,7 @@ opr:
                 if (flags & PROBLEM)
                     storepsw(OPPSW, IRC_PRIV);
                 else
-                    cc = startio(addr1 & 0xfff);
+                    cc = startio(addr1 & 0x1fff); /* /67 feature */
                 break;
 
         case OP_TIO:
@@ -1630,7 +1630,7 @@ opr:
                 if (flags & PROBLEM)
                     storepsw(OPPSW, IRC_PRIV);
                 else
-                    cc = haltio(addr1 & 0xfff);
+                    cc = haltio(addr1 & 0x1fff); /* /67 feature */
                 break;
 
         case OP_TCH:
