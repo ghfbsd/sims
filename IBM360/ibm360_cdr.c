@@ -219,7 +219,7 @@ cdr_srv(UNIT *uptr) {
             return SCPE_OK;
        case CDSE_OK:
             uptr->CMD |= CDR_CARD;
-            if ((uptr->CMD & CDR_CMDMSK) == CDR_FEED) {
+            if (((uptr->CMD & CDR_CMDMSK) & ~CDR_MODE) == CDR_FEED) {
                 chan_end(addr, SNS_CHNEND|SNS_DEVEND);
                 uptr->CMD &= ~(CDR_CMDMSK);
                 return SCPE_OK;
@@ -231,7 +231,7 @@ cdr_srv(UNIT *uptr) {
     }
 
     /* Copy next column over */
-    if ((uptr->CMD & CDR_CMDMSK) == CDR_RD) {
+    if (((uptr->CMD & CDR_CMDMSK) & ~CDR_MODE) == CDR_RD) {
         int                  u = uptr-cdr_unit;
         uint16               xlat;
         uint8                ch = 0;
