@@ -957,6 +957,8 @@ int haltio(uint16 addr) {
             M[0x44 >> 2] = (((uint32)chan_status[chan]) << 16) |
                        (M[0x44 >> 2] & 0xffff);
             key[0] |= 0x6;
+            sim_debug(DEBUG_EXP, &cpu_dev, "Channel store csw  %02x %08x\n",
+                   chan, M[0x44 >> 2]);
         }
         return cc;
     }
@@ -967,6 +969,8 @@ int haltio(uint16 addr) {
     M[0x44 >> 2] = (((uint32)chan_status[chan]) << 16) |
                    (M[0x44 >> 2] & 0xffff);
     key[0] |= 0x6;
+    sim_debug(DEBUG_EXP, &cpu_dev, "Channel store csw  %02x %08x\n",
+           chan, M[0x44 >> 2]);
     return 1;
 }
 
