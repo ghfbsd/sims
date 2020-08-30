@@ -5926,21 +5926,77 @@ check_tod_irq()
 
 t_stat cpu_ex (t_value *vptr, t_addr exta, UNIT *uptr, int32 sw)
 {
-uint32 addr = (uint32) exta;
-uint32 byte;
-uint32 offset = 8 * (3 - (addr & 0x3));
+    uint32 addr = (uint32) exta;
+    uint32 byte;
+    uint32 offset = 8 * (3 - (addr & 0x3));
 
-if (vptr == NULL)
-    return SCPE_ARG;
-/* Ignore high order bits */
-addr &= AMASK;
-if (addr >= MEMSIZE)
-    return SCPE_NXM;
-addr >>= 2;
-byte = M[addr] >> offset;
-byte &= 0xff;
-*vptr = byte;
-return SCPE_OK;
+    if (vptr == NULL)
+        return SCPE_ARG;
+
+    if (sw & SWMASK ('V')) {
+        /* Virtual address, simulate LRA */
+        uint32      seg;
+        uint32      page;
+        uint32      entry;
+        uint32      addr1, addr2;
+
+        if ((cpu_unit[0].flags & FEAT_DAT) == 0)
+            return SCPE_NXM;
+
+        /* Segment number to word address */
+        addr1 = addr & AMASK;
+        seg = (addr1 >> seg_shift) & seg_mask;
+        page = (addr1 >> page_shift) & page_index;
+        if (seg > seg_len)
+            return SCPE_NXM;
+        addr2 = (((seg << 2) + seg_addr) & AMASK);
+        if (addr2 >= MEMSIZE)
+            return SCPE_NXM;
+
+        /* Check if entry valid */
+        entry = M[addr2 >> 2];
+        if (entry & PTE_VALID)
+            return SCPE_NXM;
+
+        if ((cpu_unit[0].flags & FEAT_370) != 0) {
+            addr2 = (entry >> 28) + 1;
+            /* Check if over end of table */
+            if ((page >> pte_len_shift) > addr2)
+                return SCPE_NXM;
+        } else {
+            addr2 = (entry >> 24);
+            if (page > addr2)
+                return SCPE_NXM;
+        }
+
+        /* Now we need to fetch the actual entry */
+        addr2 = (entry & PTE_ADR) + (page << 1);
+        addr2 &= AMASK;
+        if (addr2 >= MEMSIZE)
+            return SCPE_NXM;
+
+        entry = M[addr2 >> 2];
+        entry >>= (addr2 & 2) ? 0 : 16;
+        entry &= 0xffff;
+
+        /* Check if entry valid */
+        if (entry & pte_avail)
+            return SCPE_NXM;
+
+        addr = (addr1 & page_mask) | ((entry & 0xfff8) << 8);
+
+    } else {
+        /* Real address, just return it, but ignore high order bits */
+        addr &= AMASK;
+        if (addr >= MEMSIZE)
+            return SCPE_NXM;
+    }
+
+    addr >>= 2;
+    byte = M[addr] >> offset;
+    byte &= 0xff;
+    *vptr = byte;
+    return SCPE_OK;
 }
 
 /* Memory deposit */
@@ -6087,6 +6143,8 @@ t_stat              cpu_help(FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, con
     fprint_show_help(st, dptr);
     fprintf(st, "\nCPU device RESET commands:\n\n");
     fprintf(st, "reset CPU PSW                   PSW RESTART system control panel key\n");
+    fprintf(st, "\nEXAMINE flags:\n\n");
+    fprintf(st, "examine -v <switches> <addr>    examine <addr> as virtual address\n");
     return SCPE_OK;
 }
 
