@@ -1747,6 +1747,15 @@ set_cc3:
                 }
                 src1 = regs[reg1|1];
         case OP_MH:
+#ifdef USE_64BIT
+                src1L = (((t_int64) ((t_uint64)src1 << 32)) >> 32) * (int32)src2;
+                if (op != OP_MH) {
+                    STDBL(reg1, src1L);
+                } else {
+                    regs[reg1] = (uint32)(src1L & FMASK);
+                    per_mod |= 1 << reg1;
+                }
+#else
                 fill = 0;
 
                 if (src1 & MSIGN) {
@@ -1757,17 +1766,6 @@ set_cc3:
                     fill ^= 1;
                     src2 = NEG(src2);
                 }
-#ifdef USE_64BIT
-                src1L = ((t_uint64)src1) * ((t_uint64)src2);
-                if (fill)
-                    src1L = NEG(src1L);
-                if (op != OP_MH) {
-                    STDBL(reg1, src1L);
-                } else {
-                    regs[reg1] = (uint32)(src1L & FMASK);
-                    per_mod |= 1 << reg1;
-                }
-#else
                 src1h = 0;
                 if (src1 != 0 || src2 != 0) {
                     for (reg = 32; reg > 0; reg--) {
