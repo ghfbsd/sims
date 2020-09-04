@@ -852,6 +852,7 @@ t_stat mt_srv(UNIT * uptr)
               } else {
                   sim_debug(DEBUG_DETAIL, dptr, "Rewind unit=%d\n", unit);
                   uptr->CMD &= ~(MT_CMDMSK);
+                  uptr->SNS |= (SNS_LOAD << 8); /* if next cmd is SENSE */
                   r = sim_tape_rewind(uptr);
                   set_devattn(addr, SNS_DEVEND);
               }
