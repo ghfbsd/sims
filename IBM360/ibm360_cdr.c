@@ -47,6 +47,7 @@
 #define CDR_STKMSK     0xC0       /* Mask for stacker */
 #define CDP_WR         0x09       /* Punch command */
 #define CDR_CARD       0x100      /* Unit has card in buffer */
+#define CDR_EOF        0x200      /* EOF indicator */
 
 /* Upper 11 bits of u3 hold the device address */
 
@@ -146,6 +147,11 @@ uint8  cdr_startcmd(UNIT *uptr, uint16 chan,  uint8 cmd) {
     case 2:              /* Read command */
          if ((cmd & 0xc0) != 0xc0)
              uptr->CMD &= ~CDR_CARD;
+         if (uptr->CMD & CDR_EOF) {
+             uptr->CMD &= ~CDR_EOF;
+             uptr->SNS &= ~SNS_INTVENT;
+             return SNS_CHNEND|SNS_DEVEND|SNS_UNITEXP;
+         }
          uptr->CMD &= ~(CDR_CMDMSK);
          uptr->CMD |= (cmd & CDR_CMDMSK);
          sim_activate(uptr, 1000);       /* Start unit off */
@@ -196,6 +202,8 @@ cdr_srv(UNIT *uptr) {
          uint8 ch = uptr->SNS;
          if (ch == 0 && (uptr->flags & UNIT_ATT) == 0)
              ch = SNS_INTVENT;
+         else if (sim_card_eof(uptr))
+             ch |= SNS_INTVENT;
          chan_write_byte(addr, &ch);
          chan_end(addr, SNS_CHNEND|SNS_DEVEND);
          uptr->CMD &= ~(CDR_CMDMSK);
@@ -203,19 +211,33 @@ cdr_srv(UNIT *uptr) {
          return SCPE_OK;
     }
 
-    /* Check if new card requested. */
-    if ((uptr->CMD & CDR_CARD) == 0) {
+    /* Check if new card requested if not status poll. */
+    if ((uptr->CMD & CDR_CARD) == 0 && (uptr->CMD & CDR_CMDMSK)) {
+       int u = uptr-cdr_unit;
        switch(sim_read_card(uptr, image)) {
        case CDSE_EMPTY:
-            uptr->SNS = SNS_INTVENT;
+            uptr->CMD |= CDR_EOF;
        case CDSE_EOF:
             uptr->CMD &= ~CDR_CMDMSK;
-            chan_end(addr, SNS_CHNEND|SNS_DEVEND|SNS_UNITEXP);
-            return SCPE_OK;
+            sim_debug(DEBUG_CMD, &cdr_dev, "CMD unit=%d %x: %s\n",
+                u, uptr->CMD, uptr->CMD & CDR_EOF ? "EMPTY":"EOF");
+            if (((uptr->CMD & CDR_CMDMSK) & ~CDR_MODE) == CDR_RD) {
+                /* Only give UE on a read cmd, not control.  From
+                   2821 manual: "After the last card has been read
+                   from the buffer and stacked in the selected
+                   stacker, unit-exception status is given at
+                   initial selection of the next read command." */
+                chan_end(addr, SNS_CHNEND|SNS_DEVEND|SNS_UNITEXP);
+                return SCPE_OK;
+            }
+            chan_end(addr, SNS_CHNEND|SNS_DEVEND);
+            break;
        case CDSE_ERROR:
             uptr->SNS = SNS_INTVENT;
             uptr->CMD &= ~CDR_CMDMSK;
             chan_end(addr, SNS_CHNEND|SNS_DEVEND|SNS_UNITCHK);
+            sim_debug(DEBUG_CMD, &cdr_dev, "CMD unit=%d %x: ERROR\n", u,
+                uptr->CMD);
             return SCPE_OK;
        case CDSE_OK:
             uptr->CMD |= CDR_CARD;
