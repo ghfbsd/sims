@@ -919,6 +919,7 @@ mt_attach(UNIT * uptr, CONST char *file)
     uptr->CMD &= UNIT_ADDR_MASK;
     uptr->POS = 0;
     uptr->SNS = 0;
+    uptr->SNS |= SNS_TUASTA << 8;
     return SCPE_OK;
 }
 
