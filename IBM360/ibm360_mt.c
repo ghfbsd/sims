@@ -248,11 +248,19 @@ uint8  mt_startcmd(UNIT *uptr, uint16 chan,  uint8 cmd) {
     sim_debug(DEBUG_CMD, dptr, "CMD unit=%d %x\n", unit, cmd);
 
     switch (cmd & 0xF) {
-    case 0x7:              /* Tape motion */
-    case 0xf:              /* Tape motion */
     case 0x1:              /* Write command */
     case 0x2:              /* Read command */
     case 0xc:              /* Read backward */
+         if (cmd & 0xF0) {
+             uptr->SNS |= SNS_CMDREJ + (SNS_TUASTA << 8);
+             break;
+         }
+    case 0x7:              /* Tape motion */
+    case 0xf:              /* Tape motion */
+         if (cmd & 0xC0) {
+             uptr->SNS |= SNS_CMDREJ + (SNS_TUASTA << 8);
+             break;
+         }
          uptr->SNS = 0;
          uptr->SNS |= SNS_TUASTA << 8;
           /* Fall through */
