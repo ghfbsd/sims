@@ -379,7 +379,7 @@ t_stat coml_srv(UNIT * uptr)
                  chan_end(addr, SNS_CHNEND|SNS_DEVEND|SNS_UNITEXP);
                  return SCPE_OK;
              }
-             if (uptr->CMD & ADDR) {
+             if ((uptr->CMD & ADDR) && (uptr->BPTR == 0)) {
                  ch = 0x16;
                  sim_debug(DEBUG_CMD, dptr, "COM: unit=%d addr %02x\n", unit, ch);
                  uptr->CMD &= ~ADDR;
@@ -410,6 +410,8 @@ t_stat coml_srv(UNIT * uptr)
                      return SCPE_OK;
                  }
                  ch = com_buf[unit][uptr->IPTR++];
+                 if (ch == 0x1f)
+                     uptr->CMD |= ADDR;
                  if (chan_write_byte( addr, &ch)) {
                      uptr->CMD &= ~(0xff|INPUT|RECV);
                      uptr->IPTR = 0;
@@ -448,7 +450,7 @@ t_stat coml_srv(UNIT * uptr)
                               unit, ch, data, isprint(data)? data: '^');
                  if (ch == 0x1f) {  /* Check for address character */
                      uptr->CMD |= ADDR;
-                 } else if (ch == 0x16) {
+                 } else if (ch == 0x16 && (uptr->CMD & ADDR)) {
                      uptr->CMD &= ~ADDR;
                  } else if (ch == 0xb8) {   /* Bypass */
                      uptr->CMD |= BYPASS;
@@ -472,6 +474,7 @@ t_stat coml_srv(UNIT * uptr)
 
     case CMD_BRK:        /* Send break signal  */
          uptr->CMD &= ~0xff;
+         uptr->CMD |= ADDR;  /* also puts TA(I) in control mode */
          uptr->SNS = 0;
          chan_end(addr, SNS_CHNEND|SNS_DEVEND);
          break;
@@ -695,7 +698,7 @@ return SCPE_OK;
 
 const char *com_description (DEVICE *dptr)
 {
-return "IBM 2701 communications controller";
+return "IBM 2703 communications controller";
 }
 
 #endif
