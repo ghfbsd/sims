@@ -439,6 +439,13 @@ t_stat coml_srv(UNIT * uptr)
                  chan_end(addr, SNS_CHNEND|SNS_DEVEND|SNS_UNITEXP);
                  return SCPE_OK;
              }
+             if (uptr->CMD & BREAK) {
+                 sim_debug(DEBUG_CMD, dptr, "COM: unit=%d attn write\n", unit);
+                 uptr->CMD &= ~(0xff|BREAK);
+                 uptr->SNS |= SNS_INTVENT;
+                 chan_end(addr, SNS_CHNEND|SNS_DEVEND|SNS_UNITCHK);
+                 return SCPE_OK;
+             }
              sim_debug(DEBUG_CMD, dptr, "COM: unit=%d write\n", unit);
              if (chan_read_byte (addr, &ch)) {
                  uptr->CMD &= ~0xff;
