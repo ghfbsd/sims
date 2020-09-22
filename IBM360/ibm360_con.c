@@ -389,7 +389,7 @@ con_srv(UNIT *uptr) {
 t_stat
 con_help(FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, const char *cptr)
 {
-   fprintf (st, "1050 Console Terminal\n");
+   fprintf (st, "1052 Console Terminal\n");
    fprintf (st, "This is the interface from the operator to the system. To request the\n");
    fprintf (st, "system to accept input press the <esc> key and wait until the system\n");
    fprintf (st, "responds with a line with I as the first character. When you have\n");
@@ -404,7 +404,7 @@ con_help(FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, const char *cptr)
 const char *
 con_description(DEVICE *dptr)
 {
-   return "1050 Console Terminal";
+   return "1052 Console Terminal";
 }
 
 
