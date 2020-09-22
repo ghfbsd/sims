@@ -120,7 +120,7 @@ MTAB                lpr_mod[] = {
     {0}
 };
 
-struct dib lpr_dib = { 0xFF, 1, NULL, lpr_startcmd, NULL, lpr_unit, lpr_ini};
+struct dib lpr_dib = { 0, NUM_DEVS_LPR, NULL, lpr_startcmd, NULL, lpr_unit, lpr_ini};
 
 DEVICE              lpr_dev = {
     "LPR", lpr_unit, NULL, lpr_mod,
