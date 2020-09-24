@@ -3473,7 +3473,7 @@ save_dbl:
                          break;
                       }
                    } else {
-                      if (desth < dest && addr1 >= addr2) {
+                      if (addr1 < dest && addr1 >= addr2) {
                          cc = 3;
                          break;
                       }
