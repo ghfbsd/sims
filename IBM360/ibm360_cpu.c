@@ -3465,18 +3465,14 @@ save_dbl:
                    src2 = regs[R2(reg)|1];
                    fill = (src2 >> 24) & 0xff;
                    src2 &= AMASK;
-                   dest = addr2 + src2;
-                   desth = addr1 + src1;
-                   if ((dest & ~AMASK) != 0) { /* Wrap around */
-                      if (addr2 > desth || desth <= addr1) {
-                         cc = 3;
-                         break;
-                      }
-                   } else {
-                      if (addr1 < dest && addr1 >= addr2) {
-                         cc = 3;
-                         break;
-                      }
+                   if (src1 > 1 && src2 > 1) {
+                       dest = addr2 + ((src2 < src1) ? src2 : src1) - 1;
+                       dest &= AMASK;
+                       if ((dest > addr2 && (addr1 > addr2 && addr1 <= dest)) ||
+                           (dest <= addr2 && (addr1 > addr2 || addr1 <= dest))) {
+                           cc = 3;
+                           break;
+                       }
                    }
                    if (src1 == 0)
                       cc = (src2 == 0) ? 0 : 2;
