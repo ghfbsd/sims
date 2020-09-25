@@ -571,9 +571,9 @@ int  TransAddr(uint32 va, uint32 *pa) {
              return 1;
          }
      } else {
-         addr = ((entry >> 28) + 1) << pte_len_shift;
+         addr = (entry >> 28) + 1;
          /* Check if entry valid and in correct length */
-         if (entry & PTE_VALID || page >= addr) {
+         if (entry & PTE_VALID || (page >> pte_len_shift) >= addr) {
              M[0x90 >> 2] = va;
              key[0] |= 0x6;
              PC = iPC;
@@ -2382,9 +2382,9 @@ save_dbl:
                     }
 
                     if ((cpu_unit[0].flags & FEAT_370) != 0) {
-                        addr2 = ((entry >> 28) + 1) << pte_len_shift;
+                        addr2 = (entry >> 28) + 1;
                         /* Check if over end of table */
-                        if (page >= addr2) {
+                        if ((page >> pte_len_shift) >= addr2) {
                             cc = 3;
                             regs[reg1] = addr1;
                             per_mod |= 1 << reg1;
