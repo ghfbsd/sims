@@ -55,7 +55,7 @@
         Channels 1-n run on channels virtual channels above subchannels.
 */
 
-#define     MAX_CHAN        6
+#define     MAX_CHAN        11
 #define     SUB_CHANS       192
 #define     MAX_MUX         2
 

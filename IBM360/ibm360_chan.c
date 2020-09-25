@@ -1174,6 +1174,15 @@ chan_set_devs()
 {
     uint32              i, j;
 
+    /* Number of available channels depends on CPU type */
+    if (cpu_unit[0].flags & FEAT_370)
+        channels = MAX_CHAN > 11 ? 11 : MAX_CHAN;
+    else
+        /* Actually, /67 could have 24 channels with 4
+           channel controllers, but we simulate only one
+           channel controller. Hence, 6 is the maximum */
+        channels = MAX_CHAN > 6 ? 6 : MAX_CHAN;
+
     for(i = 0; i < MAX_DEV; i++) {
         dev_unit[i] = NULL;                  /* Device pointer */
     }
