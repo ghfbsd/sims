@@ -451,7 +451,7 @@ uint8  dasd_startcmd(UNIT *uptr, uint16 chan,  uint8 cmd) {
            }
            ch = 0;
            for (; i < disk_type[type].sen_cnt; i++) {
-               sim_debug(DEBUG_DETAIL, dptr, "sense unit=%d %d %x\n", unit, i, ch);
+               sim_debug(DEBUG_DETAIL, dptr, "sense unit=%d %d %x\n", unit, i+1, ch);
                if (chan_write_byte(addr, &ch))
                    goto sense_end;
            }
@@ -853,7 +853,7 @@ index:
          }
          ch = 0;
          for (; i < disk_type[type].sen_cnt; i++) {
-             sim_debug(DEBUG_DETAIL, dptr, "sense unit=%d %d %x\n", unit, i, ch);
+             sim_debug(DEBUG_DETAIL, dptr, "sense unit=%d %d %x\n", unit, i+1, ch);
              if (chan_write_byte(addr, &ch))
                  goto sense_end;
          }
