@@ -265,7 +265,16 @@ t_stat scoml_srv(UNIT * uptr)
     int                 cmd = uptr->CMD & 0xff;
     uint8               ch;
 
-    if ((uptr->CMD & (RECV|DATA)) != 0) {
+    if (scom_ldsc[unit].conn == 0 && cmd != 0x4) {
+         /* If no connection yet, pretend unit is powered off.
+            ATTN & DE at connection will revive activity.  */
+         uptr->SNS |= SNS_INTVENT;
+         uptr->CMD &= ~0xff;
+         chan_end(addr, SNS_CHNEND|SNS_DEVEND|SNS_UNITCHK);
+         return SCPE_OK;
+    }
+
+    if ((uptr->CMD & (RECV|DATA)) != 0 && scom_ldsc[unit].conn) {
         sim_activate(uptr, 200);
         return scom_readinput(uptr);
     }
@@ -407,7 +416,9 @@ t_stat scom_scan(UNIT * uptr)
         scom_sendoption(line, ln, DO, OPTION_EOR);
         line->CMD |= ENAB|DATA|INIT1;
         line->CMD &= ~(RECV|SEND);
+        line->SNS = 0;
         sim_activate(line, 20000);
+        chan_end(GET_UADDR(line->CMD), SNS_DEVEND);
     }
 
     /* See if a line is disconnected with no scommand on it. */
@@ -641,7 +652,7 @@ return SCPE_OK;
 
 const char *scom_description (DEVICE *dptr)
 {
-return "IBM 3271 communications controller";
+return "IBM 3272 communications controller";
 }
 
 #endif
