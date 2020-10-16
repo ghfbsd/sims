@@ -399,7 +399,7 @@ t_stat coml_srv(UNIT * uptr)
                  uptr->SNS = SNS_INTVENT;
                  uptr->BPTR = 0;
                  uptr->IPTR = 0;
-                 chan_end(addr, SNS_CHNEND|SNS_DEVEND|SNS_UNITEXP);
+                 chan_end(addr, SNS_CHNEND|SNS_DEVEND|SNS_UNITCHK|SNS_UNITEXP);
                  return SCPE_OK;
              } else if (uptr->CMD & INPUT) {
                  if (uptr->BPTR == uptr->IPTR) {
