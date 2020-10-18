@@ -673,7 +673,11 @@ _sim_parse_card(UNIT *uptr, DEVICE *dptr, struct _card_buffer *buf, uint16 (*ima
     switch(mode) {
     default:
     case MODE_TEXT:
-        sim_debug(DEBUG_CARD, dptr, "text: [");
+        sim_debug(DEBUG_CARD, dptr, "%s text: [",
+            (uptr->flags & MODE_CHAR) == MODE_026 ? "026" :
+            (uptr->flags & MODE_CHAR) == MODE_029 ? "029" :
+            (uptr->flags & MODE_CHAR) == MODE_EBCDIC ? "EBCDIC" :
+            "unknown");
         /* Check for special codes */
         if (buf->buffer[0] == '~') {
             int f = 1;
@@ -768,6 +772,14 @@ _sim_parse_card(UNIT *uptr, DEVICE *dptr, struct _card_buffer *buf, uint16 (*ima
         }
     end_card:
         sim_debug(DEBUG_CARD, dptr, "-%d-", i);
+        if (sim_deb && dptr && ((dptr)->dctrl & DEBUG_CARD)) {
+            int j, jmx=16;
+            sim_debug(DEBUG_CARD, dptr, "%03x", (*image)[0] & 0xfff);
+            for(j=1;j<i && j<jmx; j++)
+               sim_debug(DEBUG_CARD, dptr, " %03x", (*image)[j]);
+            if (i >= jmx)
+               sim_debug(DEBUG_CARD, dptr, "...");
+        }
 
         /* Scan to end of line, ignore anything after last column */
         while (buf->buffer[i] != '\n' && buf->buffer[i] != '\r' && i < buf->len) {
@@ -777,7 +789,8 @@ _sim_parse_card(UNIT *uptr, DEVICE *dptr, struct _card_buffer *buf, uint16 (*ima
             i++;
         if (buf->buffer[i] == '\n')
             i++;
-        sim_debug(DEBUG_CARD, dptr, "]\n");
+        sim_debug(DEBUG_CARD, dptr, "]%s\n",
+            (*image)[0] & CARD_ERR ? " ERROR (will jam on read)":"");
         break;
 
     case MODE_BIN:
@@ -1252,6 +1265,12 @@ sim_card_attach(UNIT * uptr, CONST char *cptr)
                 hol_to_ebcdic[temp] = i;
             }
         }
+        for (i = 0; i < 256; i++)
+            if (hol_to_ebcdic[ebcdic_to_hol[i]] != i)
+                fprintf(stderr,
+                    "Translation error EBCDIC->Hollerith->EBCDIC: %02x->%03x->%03x\n",
+                    i, ebcdic_to_hol[i], hol_to_ebcdic[ebcdic_to_hol[i]]
+                );
         ebcdic_init = 1;
     }
 
