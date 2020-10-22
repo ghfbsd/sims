@@ -104,7 +104,7 @@ MTAB                com_mod[] = {
 MTAB                coml_mod[] = {
     {MTAB_XTD | MTAB_VUN | MTAB_VALR, 0, "DEV", "DEV", &set_dev_addr,
         &show_dev_addr, NULL},
-    {UNIT_DIRECT, 0, "DIALUP", "DIALUP", NULL, NULL, NULL, "Dailup line" },
+    {UNIT_DIRECT, 0, "DIALUP", "DIALUP", NULL, NULL, NULL, "Dialup line" },
     {UNIT_DIRECT, UNIT_DIRECT, "NODIAL", "NODIAL", NULL, NULL, NULL,
                "Hard wired line" },
     {0}
@@ -465,8 +465,15 @@ t_stat coml_srv(UNIT * uptr)
                      uptr->CMD &= ~(BYPASS|ADDR|ADDR9);
                  } else if ((uptr->CMD & ADDR) != 0 && ch == 0x13) {
                      uptr->CMD |= ADDR9;
-                 } else if ((uptr->CMD & ADDR) == 0 && data != 0xff) {
-                     tmxr_putc_ln( &com_ldsc[unit], data);
+                 } else if ((uptr->CMD & ADDR) == 0) {
+                     if (ch == 0xf6) { /* UTF-8 logical not */
+                         tmxr_putc_ln( &com_ldsc[unit], 0xC2);
+                         tmxr_putc_ln( &com_ldsc[unit], 0xAC);
+                     } else if (ch == 0xa0) { /* UTF-8 cent sign */
+                         tmxr_putc_ln( &com_ldsc[unit], 0xC2);
+                         tmxr_putc_ln( &com_ldsc[unit], 0xA2);
+                     } else if (data != 0xff) 
+                         tmxr_putc_ln( &com_ldsc[unit], data);
                      if (ch == 0x5b || ch == 0xdb)
                          tmxr_putc_ln( &com_ldsc[unit], '\r');
                  }
