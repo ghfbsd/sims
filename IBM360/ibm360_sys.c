@@ -80,6 +80,9 @@ DEVICE *sim_devices[] = {
 #ifdef NUM_DEVS_COM
         &coml_dev,
         &com_dev,
+#ifdef NUM_DEVS_BSC
+        &bsc_dev,
+#endif
 #endif
 #ifdef NUM_DEVS_SCOM
         &scoml_dev,

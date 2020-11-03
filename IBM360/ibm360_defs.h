@@ -70,6 +70,8 @@
 #define NUM_UNITS_DASD      8
 #define NUM_DEVS_COM        1
 #define NUM_UNITS_COM       16
+#define NUM_DEVS_BSC        1
+#define NUM_UNITS_BSC       4
 #define NUM_DEVS_SCOM       1
 #define NUM_UNITS_SCOM      8
 
@@ -386,6 +388,7 @@ extern DEVICE ddc_dev;
 extern DEVICE ddd_dev;
 extern DEVICE coml_dev;
 extern DEVICE com_dev;
+extern DEVICE bsc_dev;
 extern DEVICE scoml_dev;
 extern DEVICE scom_dev;
 extern UNIT cpu_unit[];
